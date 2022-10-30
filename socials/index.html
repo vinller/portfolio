@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My socials</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="https://cdn.vinnyy.me/logo-i.png">
+    <meta name="theme-color" content="#011B10">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Kalam:wght@300&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+    <meta property="og:title" content="Vinny's socials">
+    <meta property="og:description" content="Find a way to contact Vinny.">
+    <meta name="theme-color" content="#2f3136">
+    <meta name="application-name" content="Vinny's socials">
+    <meta name="twitter:card" content="summary_large_image">
+    <style>
+        .socials {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 20px;
+            padding: 70px;
+        }
+        
+        .info {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 190px;
+            padding-bottom: 10px;
+        }
+        
+        .spacer {
+            aspect-ratio: 960/200;
+            width: 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            z-index: -1;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .layer1 {
+            background-image: url('img/bg.svg');
+            z-index: -1;
+        }
+        
+        .layer2 {
+            background-image: url('img/layred2.svg');
+            z-index: -1;
+        }
+        
+        .flip {
+            transform: rotate(180deg);
+        }
+        
+        .avatar {
+            vertical-align: middle;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+         ::-webkit-scrollbar-track {
+            box-shadow: transparent;
+            border-radius: 12px;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            background: #133a1b;
+            border-radius: 12px;
+        }
+        
+         ::-webkit-scrollbar-thumb:hover {
+            background: #0D2D14;
+        }
+    </style>
+</head>
+
+<body>
+    </section>
+    <div class="spacer layer1">
+        <section class="info">
+            <img src="img/pfp.jpg" alt="Avatar" class="avatar"><br>
+            <h2 style="font-family: 'Fredoka One', cursive;color: #3E801D; text-shadow: 0 0px 16px rgba(62, 128, 29, 0.5);">Let's connect</h2>
+        </section>
+        <section class="socials ">
+            <ul>
+                <li><a style="text-decoration:none; color:inherit; " href="https://www.snapchat.com/add/vinnyy.24 "><i class="fab fa-snapchat "></i></a></li>
+                <li><a style="text-decoration:none; color:inherit; " href="https://www.instagram.com/_vinnyy.24/ "><i class="fab fa-instagram "></i></a></li>
+                <li><a style="text-decoration:none; color:inherit; " href="https://open.spotify.com/user/9gmzlsgelvcf2nid1komcvevw "><i class=" fab fa-spotify "></i></a></li>
+                <li><a style="text-decoration:none; color:inherit; " href="https://discord.com/users/716691367702823013 "><i class="fab fa-discord "></i></a></li>
+                <li><a style="text-decoration:none; color:inherit; " href="mailto:hello@vinnyy.me "><i class="fa-solid fa-envelope "></i></a></li>
+                <li><a style="text-decoration:none; color:inherit; " href="https://github.com/vinller "><i class="fab fa-github "></i></a></li>
+                <!--<li><a style="text-decoration:none; color:inherit; " href="https://www.tiktok.com/@vinnyy.24 "><i class="fab fa-tiktok "></i></a></li>-->
+            </ul>
+        </section>
+    </div>
+
+    <!--<script type="text/javascript">
+  if ((navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i))|| (navigator.userAgent.match(/Android/i))|| (navigator.userAgent.match(/webOS/i))|| (navigator.userAgent.match(/BlackBerry/i))|| (navigator.userAgent.match(/iPad/i))) {
+    location.replace("https://vinnyy.me/m/socials");
+  }
+</script>-->
+
+    <script type="text/javascript">
+        if (screen.width <= 699) {
+            document.location = "m/socials";
+        }
+    </script>
+
+</body>
+
+</html>
