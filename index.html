@@ -13,8 +13,17 @@
     <meta name="theme-color" content="#011B10">
     <meta name="application-name" content="Vinny's socials">
     <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#myModal").modal('show');
+        });
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cabin&display=swap');
         body {
             padding: 0;
             margin: 0;
@@ -38,54 +47,6 @@
             font-weight: bolder;
             letter-spacing: 12px;
             font-size: 10em;
-            animation: anim 2s linear infinite;
-        }
-        
-        @keyframes anim {
-            0% {
-                filter: blur(0);
-            }
-            20% {
-                filter: blur(5px);
-            }
-            40% {
-                filter: blur(0);
-            }
-            60% {
-                filter: blur(0);
-            }
-        }
-        
-        .load span:nth-child(1) {
-            animation-delay: 0s;
-        }
-        
-        .load span:nth-child(2) {
-            animation-delay: 0.3s;
-        }
-        
-        .load span:nth-child(3) {
-            animation-delay: 0.6s;
-        }
-        
-        .load span:nth-child(4) {
-            animation-delay: 0.9s;
-        }
-        
-        .load span:nth-child(5) {
-            animation-delay: 1.2s;
-        }
-        
-        .load span:nth-child(6) {
-            animation-delay: 1.5s;
-        }
-        
-        .load span:nth-child(7) {
-            animation-delay: 1.8s;
-        }
-        
-        .load span:nth-child(8) {
-            animation-delay: 2.1s;
         }
         
          ::selection {
@@ -93,32 +54,189 @@
             background: #b7bf96;
         }
         
-        .spacer {
-            aspect-ratio: 960/200;
-            width: 100%;
-            background-repeat: no-repeat;
-            background-position: center;
-            background-size: cover;
-            z-index: -1;
-            height: 100vh;
-            width: 100vw;
+        .modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0, 0, 0, 0.25);
         }
         
-        .layer1 {
-            background-image: url('https://vinnyy.me/img/bg.svg');
-            z-index: -1;
+        .modal-container {
+            max-height: 90vh;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #133a1b;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.25);
+        }
+        
+        @media (max-width: 600px) {
+            .modal-container {
+                width: 90%;
+            }
+        }
+        
+        .modal-container-header {
+            padding: 16px 32px;
+            border-bottom: 1px solid #133a1b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-container-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1;
+            font-weight: 700;
+            font-size: 1.125;
+            text-align: center;
+            font-family: 'Cabin', sans-serif;
+            color: #b7bf96;
+        }
+        
+        .modal-container-title img {
+            width: 100px;
+            height: 100px;
+            color: #750550;
+            align-items: center;
+        }
+        
+        .rtf h1,
+        .rtf h2,
+        .rtf h3,
+        .rtf h4,
+        .rtf h5,
+        .rtf h6 {
+            font-weight: 700;
+        }
+        
+        .rtf h1 {
+            font-size: 1.5rem;
+            line-height: 1.125;
+        }
+        
+        .rtf h2 {
+            font-size: 1.25rem;
+            line-height: 1.25;
+        }
+        
+        .rtf h3 {
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        
+        .rtf>*+* {
+            margin-top: 1em;
+        }
+        
+        .rtf self>*+ :is(h1,
+        h2,
+        h3) {
+            margin-top: 2em;
+        }
+        
+        .rtf self> :is(h1,
+        h2,
+        h3)+* {
+            margin-top: 0.75em;
+        }
+        
+        .rtf ul,
+        .rtf ol {
+            margin-left: 20px;
+            list-style-position: inside;
+        }
+        
+        .rtf ol {
+            list-style: numeric;
+        }
+        
+        .rtf ul {
+            list-style: disc;
+        }
+        
+        .icon-button {
+            padding: 0;
+            border: 0;
+            background-color: transparent;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: 0.15s ease;
+        }
+        
+        .icon-button svg {
+            width: 24px;
+            height: 24px;
+        }
+        
+        .icon-button:hover,
+        .icon-button:focus {
+            background-color: #b7bf96;
+        }
+        
+        .modal-container-body h1 {
+            align-items: center;
+            gap: 8px;
+            line-height: 1;
+            font-weight: 700;
+            font-size: 1.125;
+            text-align: center;
+            font-family: 'Cabin', sans-serif;
+            color: #b7bf96;
+        }
+        
+        .modal-container-body {
+            padding: 24px 32px 51px;
+            overflow-y: auto;
         }
     </style>
 </head>
 
 <body>
-    <div class="spacer layer1">
-        <div class="center">
-            <div class="load">
-                <span><a href="https://vinnyy.me/socials" style="text-decoration: none;">VINNY</a></span>
-            </div>
+    <div class="center">
+        <div class="load">
+            <span><a href="https://vinnyy.me/socials" style="text-decoration: none;">VINNY</a></span>
         </div>
     </div>
+    <div id="myModal" class="modal">
+        <article class="modal-container">
+            <header class="modal-container-header">
+                <br>
+                <h1 class="modal-container-title">
+                    <img src="https://cdn.vinnyy.me/logo-i.png">
+                </h1>
+                <button class="close icon-button" data-dismiss="modal">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="none" d="M0 0h24v24H0z" />
+                        <path fill="currentColor" d="M12 10.586l4.95-4.95 1.414 1.414-4.95 4.95 4.95 4.95-1.414 1.414-4.95-4.95-4.95 4.95-1.414-1.414 4.95-4.95-4.95-4.95L7.05 5.636z" />
+                    </svg>
+                </button>
+            </header>
+            <section class="modal-container-body rtf">
+                <h1>
+                    Click Vinny to get started!
+                </h1>
+            </section>
+        </article>
+    </div>
+
 </body>
 
 </html>
