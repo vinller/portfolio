@@ -6,6 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vinny</title>
+    <link rel="icon" href="https://vinnyy.me/img/logo-i.png">
+
+    <meta property="og:title" content="Vinny">
+    <meta property="og:image" content="https://vinnyy.me/img/banner_vinny.png">
+    <meta name="theme-color" content="#011B10">
+    <meta name="application-name" content="Vinny's socials">
+    <meta name="twitter:card" content="summary_large_image">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredericka+the+Great&display=swap');
         body {
@@ -21,7 +28,7 @@
             transform: translate(-50%, -50%);
         }
         
-        .load span {
+        .load a {
             font-family: 'Fredericka the Great', cursive;
             position: relative;
             text-align: center;
@@ -85,13 +92,31 @@
             color: #011B10;
             background: #b7bf96;
         }
+        
+        .spacer {
+            aspect-ratio: 960/200;
+            width: 100%;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+            z-index: -1;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .layer1 {
+            background-image: url('https://vinnyy.me/img/bg.svg');
+            z-index: -1;
+        }
     </style>
 </head>
 
 <body>
-    <div class="center">
-        <div class="load">
-            <span>VINNY</span>
+    <div class="spacer layer1">
+        <div class="center">
+            <div class="load">
+                <span><a href="https://vinnyy.me/socials" style="text-decoration: none;">VINNY</a></span>
+            </div>
         </div>
     </div>
 </body>
