@@ -87,6 +87,14 @@ new Vue({
                     source: "https://cdn.vinnyy.me/songs/audio/focus-bazzi.mp3",
                     url: "https://open.spotify.com/track/2FqqVHvC4eKrsk97vpMRid",
                     favorited: false
+                },
+                {
+                    artist: "Tearless Souls Of Byakuya",
+                    name: "HOYO-MiX",
+                    cover: "https://cdn.vinnyy.me/songs/artwork/ab67616d00001e02a4b070883f931f6ef09d8ea6.png",
+                    source: "https://cdn.vinnyy.me/songs/audio/enkanomiya.mp3",
+                    url: "https://open.spotify.com/track/6UUitFDDZ2QRrdkQ5dSP06",
+                    favorited: false
                 }
             ],
             currentTrack: null,
