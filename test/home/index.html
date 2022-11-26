@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinny</title>
+    <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Chewy&display=swap');
+         :root {
+            --purple: rgb(123, 31, 162);
+            --violet: rgb(103, 58, 183);
+            --pink: rgb(244, 143, 177);
+        }
+        
+        @keyframes background-pan {
+            from {
+                background-position: 0% center;
+            }
+            to {
+                background-position: -200% center;
+            }
+        }
+        
+        @keyframes scale {
+            from,
+            to {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(180deg);
+            }
+        }
+        
+        h1 {
+            color: white;
+            font-family: 'Chewy', cursive;
+            font-size: clamp(7em, 2vw, 4em);
+            font-weight: 400;
+            margin: 0px;
+            padding: 20px;
+            text-align: center;
+            cursor: none;
+        }
+        
+        h1>.magic {
+            display: inline-block;
+            position: relative;
+            cursor: none;
+        }
+        
+        h1>.magic>.magic-star {
+            --size: clamp(20px, 1.5vw, 30px);
+            animation: scale 700ms ease forwards;
+            display: block;
+            height: var(--size);
+            left: var(--star-left);
+            position: absolute;
+            top: var(--star-top);
+            width: var(--size);
+        }
+        
+        h1>.magic>.magic-star>svg {
+            animation: rotate 1000ms linear infinite;
+            display: block;
+            opacity: 0.7;
+        }
+        
+        h1>.magic>.magic-star>svg>path {
+            fill: var(--violet);
+        }
+        
+        h1>.magic>.magic-text {
+            animation: background-pan 3s linear infinite;
+            background: linear-gradient( to right, var(--purple), var(--violet), var(--pink), var(--purple));
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+        
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            overflow-x: hidden;
+            background-color: #000000;
+        }
+        
+        #hero {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #full {
+            min-height: 100%;
+            height: 100vh;
+            width: 100vw;
+            padding: 0;
+            margin: 0;
+            background-color: black;
+            position: relative;
+        }
+        
+        #bg {
+            width: 100vw;
+            height: auto;
+            margin: auto;
+            display: block;
+        }
+        
+        @media (min-aspect-ratio: 16/9) {
+            #bg {
+                width: 100vw;
+                height: auto;
+            }
+        }
+        
+        @media (max-aspect-ratio: 16/9) {
+            #bg {
+                height: 100vh;
+                width: auto;
+                margin-left: 50vw;
+                transform: translate(-50%);
+            }
+        }
+        
+        #heading {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .spacer {
+            height: 100vh;
+            width: 100vw;
+        }
+        
+         ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+         ::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            background: #eae0d5;
+        }
+        
+         ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        /*::-webkit-scrollbar-thumb:hover {
+            transition: transform all .5s linear;
+            background: #b30000;
+        }*/
+        
+        body:hover>#trailer {
+            opacity: 1;
+        }
+        
+        #trailer {
+            height: 20px;
+            width: 20px;
+            background-color: white;
+            border-radius: 20px;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 500ms ease;
+            display: grid;
+            place-items: center;
+        }
+        
+        #trailer:not([data-type=""])>#trailer-icon {
+            opacity: 1;
+        }
+        
+        #trailer-icon {
+            font-size: 6px;
+            line-height: 4px;
+            opacity: 0;
+            transition: opacity 400ms ease;
+        }
+        
+        .wrapper {
+            padding-bottom: 90px;
+        }
+        
+        .divider {
+            position: relative;
+            margin-top: 90px;
+            height: 1px;
+        }
+        
+        .div-transparent:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 5%;
+            right: 5%;
+            width: 90%;
+            height: 2px;
+            background-image: linear-gradient(to right, transparent, #fff, transparent);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="hero">
+        <div id="full">
+            <video id="bg" role="presentation" preload="auto" playsinline="" crossorigin="anonymous" loop="" muted="" autoplay="" class="blur">
+                <source src="https://cdn.vinnyy.me/portfolio/fluid-3.mp4" type="video/mp4">
+            </video>
+            <div id="heading" class="styling">
+                <h1>
+                    Hi there! I'm
+                    <span class="magic">
+                      <span class="magic-star">
+                        <svg viewBox="0 0 512 512">
+                        <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                        </svg>
+                      </span>
+                    <span class="magic-star">
+                        <svg viewBox="0 0 512 512">
+                        <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                        </svg>
+                      </span>
+                    <span class="magic-star">
+                        <svg viewBox="0 0 512 512">
+                        <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                        </svg>
+                      </span>
+                    <span class="magic-text">Vinny</span>
+                    </span>.
+                </h1>
+            </div>
+        </div>
+    </div>
+    <div class="wrapper">
+        <div class="divider div-transparent"></div>
+    </div>
+    <div class="spacer"></div>
+    <script>
+        let index = 0,
+            interval = 1000;
+
+        const rand = (min, max) =>
+            Math.floor(Math.random() * (max - min + 1)) + min;
+
+        const animate = star => {
+            star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
+            star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
+
+            star.style.animation = "none";
+            star.offsetHeight;
+            star.style.animation = "";
+        }
+
+        for (const star of document.getElementsByClassName("magic-star")) {
+            setTimeout(() => {
+                animate(star);
+
+                setInterval(() => animate(star), 1500);
+            }, index++ * (interval / 3))
+        }
+    </script>
+    <script>
+        document.getElementById("bg").playbackRate = 0.3;
+    </script>
+    <script>
+        const trailer = document.getElementById("trailer");
+
+        const animateTrailer = (e, interacting) => {
+            const x = e.clientX - trailer.offsetWidth / 2,
+                y = e.clientY - trailer.offsetHeight / 2;
+
+            const keyframes = {
+                transform: `translate(${x}px, ${y}px) scale(${interacting ? 8 : 1})`
+            }
+
+            trailer.animate(keyframes, {
+                duration: 800,
+                fill: "forwards"
+            });
+        }
+        const getTrailerClass = type => {
+            switch (type) {
+                case "video":
+                    return "fa-solid fa-play";
+                default:
+                    return "fa-solid fa-arrow-up-right";
+            }
+        }
+
+        window.onmousemove = e => {
+            const interactable = e.target.closest(".interactable"),
+                interacting = interactable !== null;
+
+            const icon = document.getElementById("trailer-icon");
+
+            animateTrailer(e, interacting);
+
+            trailer.dataset.type = interacting ? interactable.dataset.type : "";
+
+            if (interacting) {
+                icon.className = getTrailerClass(interactable.dataset.type);
+            }
+        }
+    </script>
+    <script type="text/javascript">
+        window.onload = function() {
+            document.getElementById("my_audio").play();
+        }
+    </script>
+</body>
+
+</html>
