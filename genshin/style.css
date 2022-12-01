@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Itim&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Trispace&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@700&display=swap');
+
+@font-face {
+    font-family: 'hywenhei85w';
+    src: url('https://vinnyy.me/genshin/fonts/zh-cn-webfont.woff2') format('woff2'),
+        url('https://vinnyy.me/genshin/fonts/zh-cn-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+body {
+    margin: 0;
+    font-family: sans-serif;
+    scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+@media (min-width: 280px) and (max-width: 480px) {
+    body {
+        width: 100vw;
+        height: 100vh;
+    }
+}
+
+.hero {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.42930675688244047), rgba(0, 0, 0, 0.42930675688244047)), url('https://vinnyy.me/genshin/img/peakpx.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+
+.hero h1 {
+    font-family: 'hywenhei85w';
+    font-size: 7em;
+    color: #adc178;
+    text-shadow: 0px 0px 10px #f0ead2;
+}
+
+@media (min-width: 280px) and (max-width: 480px) {
+    .hero h1 {
+        font-size: 4em;
+    }
+}
+
+.spacer {
+    height: 100vh;
+    width: 100%;
+}
+
+.black {
+    background-color: #000 !important;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.justify-space {
+    justify-content: space-between;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+.fav-char {
+    max-width: 100%;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: #0a1128;
+    background-image: url('https://vinnyy.me/genshin/img/star-bg.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    padding: 5em;
+}
+
+.fav-char img {
+    max-height: 120px;
+    border-top-left-radius: 0.5rem;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 1.5rem;
+    max-width: 100%;
+}
+
+.fav-char h1 {
+    font-family: 'Balsamiq Sans', cursive;
+    padding-top: 20px;
+    margin-top: 0%;
+    font-size: xx-large;
+    font-weight: bolder;
+    color: #d9ed92;
+    text-shadow: 0 0 10px #b5e48c;
+}
+
+.five-star {
+    --tw-bg-opacity: 1;
+    background-color: rgba(200, 124, 36, var(--tw-bg-opacity));
+}
+
+.four-star {
+    --tw-bg-opacity: 1;
+    background-color: rgba(148, 112, 187, var(--tw-bg-opacity));
+}
+
+
+.item-shade {
+    background-image: linear-gradient(136deg, rgba(49, 43, 71, .5294117647058824), transparent);
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    justify-content: center;
+}
+
+
+a {
+    text-decoration: none;
+    transition: transform .2s;
+}
+
+.fav-char a:hover {
+    transform: scale(1.1);
+}
+
+.text {
+    font-size: 1rem;
+    line-height: 1rem;
+    text-align: center;
+    color: #000;
+    --tw-bg-opacity: 1;
+    background-color: rgba(233, 229, 220, var(--tw-bg-opacity));
+    border-bottom-right-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    overflow: auto;
+    justify-content: center;
+    align-items: center;
+    height: 2.25rem;
+    display: flex;
+    line-height: 1;
+    font-family: 'Itim', cursive;
+    text-decoration: none;
+    font-weight: bolder;
+}
+
+.box {
+    display: inline-block;
+    border: none;
+    border-radius: 0.5rem;
+    margin: 0.5rem;
+    position: relative;
+    background-image: linear-gradient(0deg, #e9e5dc, 10rem, transparent);
+
+}
+
+.fav-char .box:hover {
+    box-shadow: 0 0 20px #1a759f;
+}
