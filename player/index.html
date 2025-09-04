@@ -245,286 +245,342 @@
   <script src="https://sdk.scdn.co/spotify-player.js"></script>
 
   <script>
-    /***** CONFIG *****/
-    const SPOTIFY_CLIENT_ID = "ac85efebe70c43bfb7dd736f8c440c0e";
-    const REDIRECT_URI = "https://vinnyy.me/player/";
-    const SCOPES = [
-      "user-read-email",
-      "user-top-read",
-      "user-read-playback-state",
-      "user-modify-playback-state",
-      "streaming"
-    ].join(" ");
-    /*******************/
+  /***** CONFIG *****/
+  const SPOTIFY_CLIENT_ID = "ac85efebe70c43bfb7dd736f8c440c0e";   // <- yours
+  const REDIRECT_URI = "https://vinnyy.me/player/";                // <- must match dashboard exactly
+  const SCOPES = [
+    "user-read-email",
+    "user-top-read",
+    "user-read-playback-state",
+    "user-modify-playback-state",
+    "streaming"
+  ].join(" ");
+  /*******************/
 
-    function authUrl() {
-      const p = new URLSearchParams({
-        client_id: SPOTIFY_CLIENT_ID,
-        response_type: "token",
-        redirect_uri: REDIRECT_URI,
-        scope: SCOPES,
-        show_dialog: "true",
-        state: Math.random().toString(36).slice(2)
-      });
-      return `https://accounts.spotify.com/authorize?${p.toString()}`;
-    }
-
-    function parseAndStoreToken() {
-      const hash = new URLSearchParams(window.location.hash.slice(1));
-      const token = hash.get("access_token");
-      const expiresIn = parseInt(hash.get("expires_in") || "0", 10);
-      if (token) {
-        localStorage.setItem("sp_access_token", token);
-        if (expiresIn) {
-          const expAt = Date.now() + (expiresIn - 30) * 1000;
-          localStorage.setItem("sp_expires_at", String(expAt));
-        }
-        history.replaceState(null, "", window.location.pathname + window.location.search);
-      }
-    }
-
-    function getStoredToken() {
-      const t = localStorage.getItem("sp_access_token");
-      const exp = parseInt(localStorage.getItem("sp_expires_at") || "0", 10);
-      if (!t || Date.now() > exp) return null;
-      return t;
-    }
-
-    new Vue({
-      el: "#app",
-      data() {
-        return {
-          transitionName: "fade",
-          tracks: [],
-          currentTrackIndex: 0,
-          isPlaying: false,
-          duration: "0:00",
-          currentTime: "0:00",
-          barWidth: "0%",
-          accessToken: null,
-          isPremium: false,
-          deviceId: null,
-          player: null,
-          timeRange: "short_term"
-        };
-      },
-      computed: {
-        currentTrack() {
-          return this.tracks[this.currentTrackIndex] || {};
-        }
-      },
-      async created() {
-        parseAndStoreToken();
-        this.accessToken = getStoredToken();
-        if (this.accessToken) {
-          await this.bootstrap();
-        }
-      },
-      methods: {
-        login() {
-          if (!SPOTIFY_CLIENT_ID || SPOTIFY_CLIENT_ID.includes("PUT_YOUR")) {
-            alert("Add your Spotify Client ID in the code first.");
-            return;
-          }
-          window.location.href = authUrl();
-        },
-
-        async bootstrap() {
-          try {
-            // whoami (also tells if Premium)
-            const me = await this.apiGET("https://api.spotify.com/v1/me");
-            this.isPremium = (me.product === "premium");
-
-            // load tracks
-            await this.loadTopTracks();
-
-            // set up player if premium
-            if (this.isPremium) {
-              await this.setupPlayer();
-            }
-          } catch (e) {
-            console.error(e);
-            alert("Spotify auth failed or API error. Try reconnecting.");
-            this.logout();
-          }
-        },
-
-        logout() {
-          localStorage.removeItem("sp_access_token");
-          localStorage.removeItem("sp_expires_at");
-          this.accessToken = null;
-          this.isPremium = false;
-          this.tracks = [];
-          this.currentTrackIndex = 0;
-          this.isPlaying = false;
-        },
-
-        async loadTopTracks() {
-          if (!this.accessToken) return;
-          const url = `https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=${this.timeRange}`;
-          const data = await this.apiGET(url);
-          this.tracks = (data.items || []).map(t => ({
-            id: t.id,
-            name: t.name,
-            artist: (t.artists || []).map(a => a.name).join(", "),
-            cover: (t.album?.images?.[0]?.url) || "",
-            url: t.external_urls?.spotify || "#",
-            uri: t.uri
-          }));
-          this.currentTrackIndex = 0;
-          // If premium, preload a queue to your device when available
-          if (this.isPremium && this.deviceId) {
-            await this.transferAndQueue(this.currentTrackIndex, false);
-          }
-        },
-
-        formatTime(sec) {
-          const s = Math.floor(sec);
-          const m = Math.floor(s / 60);
-          const r = s % 60;
-          return `${m}:${r.toString().padStart(2,"0")}`;
-        },
-
-        async setupPlayer() {
-          await new Promise(resolve => {
-            if (window.Spotify) resolve();
-            else window.onSpotifyWebPlaybackSDKReady = resolve;
-          });
-
-          this.player = new Spotify.Player({
-            name: "Vinny Top 10 Player",
-            getOAuthToken: cb => cb(this.accessToken),
-            volume: 0.8
-          });
-
-          this.player.addListener("ready", async ({ device_id }) => {
-            this.deviceId = device_id;
-            // transfer playback to this device silently
-            await this.apiPUT("https://api.spotify.com/v1/me/player", { device_ids: [device_id], play: false });
-            // queue current list
-            if (this.tracks.length) await this.transferAndQueue(this.currentTrackIndex, false);
-          });
-
-          this.player.addListener("not_ready", ({ device_id }) => {
-            if (this.deviceId === device_id) this.deviceId = null;
-          });
-
-          this.player.addListener("player_state_changed", s => {
-            if (!s) return;
-            const { position, duration, paused, track_window } = s;
-            this.isPlaying = !paused;
-            if (duration) {
-              this.barWidth = `${(position / duration) * 100}%`;
-              this.currentTime = this.formatTime(position / 1000);
-              this.duration = this.formatTime(duration / 1000);
-            }
-            const currUri = track_window?.current_track?.uri;
-            const idx = this.tracks.findIndex(t => t.uri === currUri);
-            if (idx >= 0) this.currentTrackIndex = idx;
-          });
-
-          const ok = await this.player.connect();
-          if (!ok) console.warn("Player connection failed");
-        },
-
-        async togglePlay() {
-          if (!this.tracks.length) return;
-          // If not premium, open the track in Spotify
-          if (!this.isPremium || !this.player || !this.deviceId) {
-            window.open(this.currentTrack.url, "_blank");
-            return;
-          }
-          // Start playback if stopped, otherwise toggle
-          try {
-            const state = await this.player.getCurrentState();
-            if (!state || state.paused) {
-              await this.transferAndQueue(this.currentTrackIndex, true);
-            } else {
-              await this.player.togglePlay();
-            }
-          } catch (e) {
-            console.error(e);
-          }
-        },
-
-        async nextTrack() {
-          if (!this.tracks.length) return;
-          const next = (this.currentTrackIndex + 1) % this.tracks.length;
-          await this.playIndex(next);
-        },
-
-        async prevTrack() {
-          if (!this.tracks.length) return;
-          const prev = (this.currentTrackIndex - 1 + this.tracks.length) % this.tracks.length;
-          await this.playIndex(prev);
-        },
-
-        async playIndex(index) {
-          this.currentTrackIndex = index;
-          if (!this.isPremium || !this.player || !this.deviceId) {
-            window.open(this.tracks[index].url, "_blank");
-            return;
-          }
-          await this.transferAndQueue(index, true);
-        },
-
-        async transferAndQueue(index, autoplay) {
-          // Set the whole list as the context using URIs, start at index
-          const uris = this.tracks.map(t => t.uri);
-          await this.apiPUT(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
-            uris,
-            offset: { position: index }
-          });
-          if (!autoplay) {
-            // pause immediately if we don't want auto-play
-            await this.player.pause();
-          }
-        },
-
-        async seek(e) {
-          if (!this.player) return;
-          const bar = this.$refs.progress.querySelector(".progress__bar");
-          const rect = bar.getBoundingClientRect();
-          const pct = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
-          try {
-            const state = await this.player.getCurrentState();
-            if (state) {
-              const ms = Math.floor(state.duration * pct);
-              await this.player.seek(ms);
-            }
-          } catch (err) {
-            console.error(err);
-          }
-        },
-
-        toggleFavorite() {
-          // purely visual in this minimal demo
-          if (!this.tracks.length) return;
-          const t = this.tracks[this.currentTrackIndex];
-          t.favorited = !t.favorited;
-          this.$set(this.tracks, this.currentTrackIndex, { ...t });
-        },
-
-        async apiGET(url) {
-          const r = await fetch(url, { headers: { Authorization: `Bearer ${this.accessToken}` } });
-          if (!r.ok) throw new Error(await r.text());
-          return r.json();
-        },
-
-        async apiPUT(url, body) {
-          const r = await fetch(url, {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${this.accessToken}`,
-              "Content-Type": "application/json"
-            },
-            body: body ? JSON.stringify(body) : null
-          });
-          if (!r.ok && r.status !== 204) throw new Error(await r.text());
-          return true;
-        }
-      }
+  /* -------------------- PKCE helpers -------------------- */
+  function base64urlencode(bytes) {
+    return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  async function sha256(str) {
+    const enc = new TextEncoder().encode(str);
+    const digest = await crypto.subtle.digest("SHA-256", enc);
+    return base64urlencode(digest);
+  }
+  function randString(len = 64) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+    let out = "";
+    const arr = crypto.getRandomValues(new Uint8Array(len));
+    for (let i = 0; i < len; i++) out += chars[arr[i] % chars.length];
+    return out;
+  }
+  async function startLoginPKCE() {
+    const codeVerifier = randString(64);
+    const codeChallenge = await sha256(codeVerifier);
+    const state = randString(16);
+    sessionStorage.setItem("sp_code_verifier", codeVerifier);
+    sessionStorage.setItem("sp_state", state);
+    const p = new URLSearchParams({
+      client_id: SPOTIFY_CLIENT_ID,
+      response_type: "code",
+      redirect_uri: REDIRECT_URI,
+      scope: SCOPES,
+      code_challenge_method: "S256",
+      code_challenge: codeChallenge,
+      state
     });
-  </script>
+    window.location.href = `https://accounts.spotify.com/authorize?${p.toString()}`;
+  }
+  async function handleAuthCallbackPKCE() {
+    const qs = new URLSearchParams(window.location.search);
+    const code = qs.get("code");
+    const state = qs.get("state");
+    const error = qs.get("error");
+    if (error) throw new Error(error);
+    if (!code) return null;
+
+    const savedState = sessionStorage.getItem("sp_state");
+    if (!state || state !== savedState) throw new Error("State mismatch");
+    sessionStorage.removeItem("sp_state");
+
+    const codeVerifier = sessionStorage.getItem("sp_code_verifier");
+    if (!codeVerifier) throw new Error("Missing code_verifier");
+
+    const body = new URLSearchParams({
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: REDIRECT_URI,
+      client_id: SPOTIFY_CLIENT_ID,
+      code_verifier: codeVerifier
+    });
+
+    const r = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    storeTokens(data);
+
+    // clean query string
+    const url = new URL(window.location.href);
+    url.search = "";
+    history.replaceState(null, "", url.toString());
+    return data.access_token;
+  }
+  function storeTokens(data) {
+    const now = Date.now();
+    const expiresAt = now + (data.expires_in - 30) * 1000; // 30s buffer
+    localStorage.setItem("sp_access_token", data.access_token);
+    localStorage.setItem("sp_refresh_token", data.refresh_token || "");
+    localStorage.setItem("sp_expires_at", String(expiresAt));
+  }
+  function getStoredToken() {
+    const t = localStorage.getItem("sp_access_token");
+    const exp = parseInt(localStorage.getItem("sp_expires_at") || "0", 10);
+    if (!t || Date.now() > exp) return null;
+    return t;
+  }
+  async function refreshIfNeeded() {
+    const exp = parseInt(localStorage.getItem("sp_expires_at") || "0", 10);
+    if (Date.now() < exp) return localStorage.getItem("sp_access_token");
+
+    const refresh_token = localStorage.getItem("sp_refresh_token");
+    if (!refresh_token) return null;
+
+    const body = new URLSearchParams({
+      grant_type: "refresh_token",
+      refresh_token,
+      client_id: SPOTIFY_CLIENT_ID
+    });
+    const r = await fetch("https://accounts.spotify.com/api/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body
+    });
+    if (!r.ok) throw new Error(await r.text());
+    const data = await r.json();
+    if (!data.refresh_token) data.refresh_token = refresh_token; // keep old one
+    storeTokens(data);
+    return data.access_token;
+  }
+
+  /* -------------------- App -------------------- */
+  new Vue({
+    el: "#app",
+    data() {
+      return {
+        transitionName: "fade",
+        tracks: [],
+        currentTrackIndex: 0,
+        isPlaying: false,
+        duration: "0:00",
+        currentTime: "0:00",
+        barWidth: "0%",
+        accessToken: null,
+        isPremium: false,
+        deviceId: null,
+        player: null,
+        timeRange: "short_term"
+      };
+    },
+    computed: {
+      currentTrack() { return this.tracks[this.currentTrackIndex] || {}; }
+    },
+    async created() {
+      try { await handleAuthCallbackPKCE(); } catch(e){ console.error(e); alert("Login failed: " + e.message); }
+      this.accessToken = getStoredToken();
+      if (!this.accessToken) {
+        try { this.accessToken = await refreshIfNeeded(); } catch {}
+      }
+      if (this.accessToken) await this.bootstrap();
+    },
+    methods: {
+      /* ---------- Auth ---------- */
+      login() { startLoginPKCE(); },
+      logout() {
+        localStorage.removeItem("sp_access_token");
+        localStorage.removeItem("sp_expires_at");
+        localStorage.removeItem("sp_refresh_token");
+        this.accessToken = null;
+        this.isPremium = false;
+        this.tracks = [];
+        this.currentTrackIndex = 0;
+        this.isPlaying = false;
+      },
+
+      /* ---------- Data ---------- */
+      async bootstrap() {
+        try {
+          const me = await this.apiGET("https://api.spotify.com/v1/me");
+          this.isPremium = (me.product === "premium");
+          await this.loadTopTracks();
+          if (this.isPremium) await this.setupPlayer();
+        } catch (e) {
+          console.error(e);
+          alert("Spotify auth failed or API error. Try reconnecting.");
+          this.logout();
+        }
+      },
+      async loadTopTracks() {
+        if (!this.accessToken) return;
+        try { this.accessToken = await refreshIfNeeded() || this.accessToken; } catch {}
+        const url = `https://api.spotify.com/v1/me/top/tracks?limit=10&time_range=${this.timeRange}`;
+        const data = await this.apiGET(url);
+        this.tracks = (data.items || []).map(t => ({
+          id: t.id,
+          name: t.name,
+          artist: (t.artists || []).map(a => a.name).join(", "),
+          cover: (t.album?.images?.[0]?.url) || "",
+          url: t.external_urls?.spotify || "#",
+          uri: t.uri,
+          favorited: false
+        }));
+        this.currentTrackIndex = 0;
+        if (this.isPremium && this.deviceId) await this.transferAndQueue(this.currentTrackIndex, false);
+      },
+
+      /* ---------- Player ---------- */
+      async setupPlayer() {
+        await new Promise(resolve => {
+          if (window.Spotify) resolve();
+          else window.onSpotifyWebPlaybackSDKReady = resolve;
+        });
+
+        this.player = new Spotify.Player({
+          name: "Vinny Top 10 Player",
+          getOAuthToken: cb => cb(this.accessToken),
+          volume: 0.8
+        });
+
+        this.player.addListener("ready", async ({ device_id }) => {
+          this.deviceId = device_id;
+          try {
+            await this.apiPUT("https://api.spotify.com/v1/me/player", { device_ids: [device_id], play: false });
+            if (this.tracks.length) await this.transferAndQueue(this.currentTrackIndex, false);
+          } catch (e) { console.warn("Transfer failed:", e); }
+        });
+
+        this.player.addListener("not_ready", ({ device_id }) => {
+          if (this.deviceId === device_id) this.deviceId = null;
+        });
+
+        this.player.addListener("player_state_changed", s => {
+          if (!s) return;
+          const { position, duration, paused, track_window } = s;
+          this.isPlaying = !paused;
+          if (duration) {
+            this.barWidth = `${(position / duration) * 100}%`;
+            this.currentTime = this.formatTime(position / 1000);
+            this.duration = this.formatTime(duration / 1000);
+          }
+          const currUri = track_window?.current_track?.uri;
+          const idx = this.tracks.findIndex(t => t.uri === currUri);
+          if (idx >= 0) this.currentTrackIndex = idx;
+        });
+
+        const ok = await this.player.connect();
+        if (!ok) console.warn("Player connection failed");
+      },
+
+      async togglePlay() {
+        if (!this.tracks.length) return;
+        if (!this.isPremium || !this.player || !this.deviceId) {
+          window.open(this.currentTrack.url, "_blank");
+          return;
+        }
+        try {
+          const state = await this.player.getCurrentState();
+          if (!state || state.paused) {
+            await this.transferAndQueue(this.currentTrackIndex, true);
+          } else {
+            await this.player.togglePlay();
+          }
+        } catch (e) { console.error(e); }
+      },
+
+      async nextTrack() {
+        if (!this.tracks.length) return;
+        const next = (this.currentTrackIndex + 1) % this.tracks.length;
+        await this.playIndex(next);
+      },
+
+      async prevTrack() {
+        if (!this.tracks.length) return;
+        const prev = (this.currentTrackIndex - 1 + this.tracks.length) % this.tracks.length;
+        await this.playIndex(prev);
+      },
+
+      async playIndex(index) {
+        this.currentTrackIndex = index;
+        if (!this.isPremium || !this.player || !this.deviceId) {
+          window.open(this.tracks[index].url, "_blank");
+          return;
+        }
+        await this.transferAndQueue(index, true);
+      },
+
+      async transferAndQueue(index, autoplay) {
+        const uris = this.tracks.map(t => t.uri);
+        await this.apiPUT(`https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`, {
+          uris,
+          offset: { position: index }
+        });
+        if (!autoplay) {
+          try { await this.player.pause(); } catch {}
+        }
+      },
+
+      async seek(e) {
+        if (!this.player) return;
+        const bar = this.$refs.progress.querySelector(".progress__bar");
+        const rect = bar.getBoundingClientRect();
+        const pct = Math.min(Math.max((e.clientX - rect.left) / rect.width, 0), 1);
+        try {
+          const state = await this.player.getCurrentState();
+          if (state) {
+            const ms = Math.floor(state.duration * pct);
+            await this.player.seek(ms);
+          }
+        } catch (err) { console.error(err); }
+      },
+
+      toggleFavorite() {
+        if (!this.tracks.length) return;
+        const t = this.tracks[this.currentTrackIndex];
+        t.favorited = !t.favorited;
+        this.$set(this.tracks, this.currentTrackIndex, { ...t });
+      },
+
+      formatTime(sec) {
+        const s = Math.floor(sec);
+        const m = Math.floor(s / 60);
+        const r = s % 60;
+        return `${m}:${r.toString().padStart(2,"0")}`;
+      },
+
+      /* ---------- HTTP ---------- */
+      async apiGET(url) {
+        const r = await fetch(url, { headers: { Authorization: `Bearer ${this.accessToken}` } });
+        if (!r.ok) throw new Error(await r.text());
+        return r.json();
+      },
+      async apiPUT(url, body) {
+        const r = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${this.accessToken}`,
+            "Content-Type": "application/json"
+          },
+          body: body ? JSON.stringify(body) : null
+        });
+        if (!r.ok && r.status !== 204) throw new Error(await r.text());
+        return true;
+      }
+    }
+  });
+</script>
+
 </body>
 </html>
