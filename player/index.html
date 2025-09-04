@@ -17,10 +17,97 @@
   <meta name="application-name" content="Top 10 songs media player">
   <meta name="twitter:card" content="summary_large_image">
   <style>
-    [v-cloak]{display:none}
-    .hint { text-align:center; font-size:12px; opacity:.8; margin-top:8px; }
-    .btn { padding:8px 14px; border-radius:10px; border:1px solid #2e2e2e33; cursor:pointer }
-  </style>
+  :root{
+    --mint-700:#396f67;   /* icon text accent */
+    --mint-500:#6fa79d;   /* primary accent */
+    --mint-300:#9fc9c0;
+    --card:#f5f2cf;       /* your pale yellow card */
+    --ink:#2c3a36;
+    --ring:rgba(111,167,157,.45);
+    --shadow:0 8px 24px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06);
+    --shadow-pressed:0 4px 12px rgba(0,0,0,.18), 0 1px 4px rgba(0,0,0,.08);
+  }
+
+  /* Toolbar under the progress bar */
+  .ui-row{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+
+  /* Themed pill button */
+  .btn.theme{
+    -webkit-appearance:none; appearance:none;
+    border:none;
+    border-radius:9999px;
+    padding:10px 16px;
+    font-weight:600;
+    letter-spacing:.2px;
+    background:linear-gradient(180deg, var(--card), #efeabf);
+    color:var(--mint-700);
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    transition:transform .08s ease, box-shadow .15s ease, background .2s ease;
+    outline:2px solid transparent;
+    outline-offset:2px;
+  }
+  .btn.theme:hover{ background:linear-gradient(180deg, #faf6d9, #ece6b9); }
+  .btn.theme:active{ transform:translateY(1px); box-shadow:var(--shadow-pressed); }
+  .btn.theme:focus-visible{ box-shadow:0 0 0 6px var(--ring), var(--shadow); }
+
+  /* Outline variant (if you need a secondary style later) */
+  .btn.theme.outline{
+    background:transparent;
+    border:2px solid var(--mint-300);
+    color:var(--mint-700);
+  }
+
+  /* Themed select (custom arrow, same pill look) */
+  .select.theme{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    box-shadow:var(--shadow);
+    border-radius:9999px;
+    overflow:hidden;
+    background:linear-gradient(180deg, var(--card), #efeabf);
+  }
+  .select.theme select{
+    -webkit-appearance:none; appearance:none;
+    border:none; background:transparent;
+    padding:10px 38px 10px 14px;
+    font-weight:600; color:var(--mint-700);
+    cursor:pointer; outline:none;
+  }
+  /* arrow */
+  .select.theme::after{
+    content:"";
+    position:absolute; right:12px; width:14px; height:14px; pointer-events:none;
+    background:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="%23396f67" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 8 10 13 15 8"/></svg>')
+      center/14px 14px no-repeat;
+    opacity:.9;
+  }
+  .select.theme:focus-within{ box-shadow:0 0 0 6px var(--ring), var(--shadow); }
+
+  /* Make the icon buttons in the right rail match the accent a bit more */
+  .player-controls__item .icon{ fill:var(--mint-700); opacity:.9; }
+  .player-controls__item:hover .icon{ opacity:1; }
+
+  /* Progress tweaks to align with palette */
+  .progress__bar{ background:rgba(57,111,103,.18); }
+  .progress__current{ background:var(--mint-500); }
+
+  /* Make big play circle feel on-brand if your CSS allows */
+  .player-controls__item.-xl{
+    background:linear-gradient(180deg, var(--card), #ece6b9) !important;
+    box-shadow:var(--shadow) !important;
+    border:2px solid var(--mint-300) !important;
+  }
+</style>
+
 </head>
 
 <body>
@@ -84,19 +171,20 @@
         <div class="progress__time">{{ currentTime }}</div>
       </div>
 
-      <div style="margin-top:14px; text-align:center;">
-        <button v-if="!accessToken" class="btn" @click="login">Connect Spotify</button>
+      <div class="ui-row">
+  <button v-if="!accessToken" class="btn theme" @click="login">
+    Connect Spotify
+  </button>
 
-        <select v-model="timeRange" @change="loadTopTracks" style="margin-left:8px;">
-          <option value="short_term">Top 10 (last 4 weeks)</option>
-          <option value="medium_term">Top 10 (6 months)</option>
-          <option value="long_term">Top 10 (all time)</option>
-        </select>
+  <span class="select theme">
+    <select v-model="timeRange" @change="loadTopTracks" aria-label="Top tracks range">
+      <option value="short_term">Top 10 (last 4 weeks)</option>
+      <option value="medium_term">Top 10 (6 months)</option>
+      <option value="long_term">Top 10 (all time)</option>
+    </select>
+  </span>
+</div>
 
-        <div class="hint" v-if="accessToken && !isPremium">
-          In-browser playback requires Spotify Premium. Play button will open tracks in Spotify.
-        </div>
-      </div>
     </div>
   </div>
   
@@ -159,7 +247,7 @@
   <script>
     /***** CONFIG *****/
     const SPOTIFY_CLIENT_ID = "ac85efebe70c43bfb7dd736f8c440c0e";
-    const REDIRECT_URI = "https://vinnyy.me/player"; // this page
+    const REDIRECT_URI = "https://vinnyy.me/player/";
     const SCOPES = [
       "user-read-email",
       "user-top-read",
